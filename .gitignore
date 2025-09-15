@@ -1,2 +1,4 @@
 /Start/node_modules
 /Start/.env
+/Tool-calling/node_modules
+/Tool-calling/.env
