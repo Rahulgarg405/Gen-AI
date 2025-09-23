@@ -31,15 +31,42 @@ async function main() {
                 type: "string",
                 description: "The search query to perform search on.",
               },
-              required: ["query"],
             },
+            required: ["query"],
           },
         },
       },
     ],
     tool_choice: "auto",
   });
-  console.log(completion.choices[0].message);
+
+  const toolCalls = completion.choices[0].message.tool_calls;
+
+  if (!toolCalls) {
+    console.log(`Assistant : ${completion.choices[0].message.content}`);
+    return;
+  }
+
+  for (const tool of toolCalls) {
+    console.log(`Tools : `, tool);
+    const functionName = tool.function.name;
+    const functionParams = tool.function.arguments;
+
+    if (functionName === "webSearch") {
+      const toolResult = await webSearch(JSON.parse(functionParams));
+      console.log("Tool Result : ", toolResult);
+    }
+  }
+
+  // console.log(JSON.stringify(completion.choices[0].message, null, 2));
 }
 
 main();
+
+async function webSearch({ query }) {
+  // we will do the tavily API call here
+
+  console.log("Calling web search tool .....");
+
+  return "Iphone was launched on 20 september 2024";
+}
