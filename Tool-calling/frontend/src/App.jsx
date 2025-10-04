@@ -19,6 +19,10 @@ function App() {
     await generate(inputValue);
   };
 
+  const loading = document.createElement("div");
+  loading.className = "my-6";
+  loading.textContent = "Thinking.....";
+
   async function generate(text) {
     // 1. append message to UI,
     // 2. Send it to LLM,
@@ -29,13 +33,16 @@ function App() {
     chatContainer?.appendChild(msg);
     setInputValue("");
 
+    chatContainer?.appendChild(loading);
+
     // call the server :
     const assistantMessage = await callServer(text);
-    console.log("Assistant message : ", assistantMessage);
+    // console.log("Assistant message : ", assistantMessage);
 
     const assistantMessageElement = document.createElement("div");
     assistantMessageElement.className = `max-w-fit`;
     assistantMessageElement.textContent = assistantMessage;
+    loading.remove();
     chatContainer?.appendChild(assistantMessageElement);
   }
 
