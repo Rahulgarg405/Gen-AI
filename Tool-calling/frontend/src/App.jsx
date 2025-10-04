@@ -13,13 +13,13 @@ function App() {
     setInputValue(e.target.value);
   };
 
-  const handleSubmit = () => {
-    console.log(inputValue);
+  const handleSubmit = async () => {
+    // console.log(inputValue);
     if (!inputValue) return;
-    generate(inputValue);
+    await generate(inputValue);
   };
 
-  function generate(text) {
+  async function generate(text) {
     // 1. append message to UI,
     // 2. Send it to LLM,
     // 3. Append response to the UI;
@@ -28,27 +28,44 @@ function App() {
     msg.textContent = text;
     chatContainer?.appendChild(msg);
     setInputValue("");
+
+    // call the server :
+    const assistantMessage = await callServer(text);
+    console.log("Assistant message : ", assistantMessage);
+
+    const assistantMessageElement = document.createElement("div");
+    assistantMessageElement.className = `max-w-fit`;
+    assistantMessageElement.textContent = assistantMessage;
+    chatContainer?.appendChild(assistantMessageElement);
   }
 
-  useEffect(() => {
-    const handleEnter = (e) => {
-      if (e.key === "Enter") {
-        console.log("Enter");
-      }
-    };
-    window.addEventListener("keyup", handleEnter);
-  }, []);
+  async function callServer(inputText) {
+    const response = await fetch("http://localhost:3001/chat", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ message: inputText }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error generating the response");
+    }
+
+    const result = await response.json();
+    return result.message;
+  }
 
   return (
     <div className="bg-neutral-900 text-white overflow-x-hidden h-screen">
       <div className="mx-auto max-w-3xl pb-44" id="container">
         {/* User messages : */}
-        <div className="my-6 bg-neutral-800 p-3 rounded-xl ml-auto max-w-fit">
+        {/* <div className="my-6 bg-neutral-800 p-3 rounded-xl ml-auto max-w-fit">
           Hi, how are you?
-        </div>
+        </div> */}
 
         {/* Assistant message : */}
-        <div className="max-w-fit">I am fine , how are you ?</div>
+        {/* <div className="max-w-fit">I am fine , how are you ?</div> */}
 
         {/* Bottom Textarea input : */}
         <div className="fixed bottom-0 max-w-3xl w-full m-auto bg-neutral-900">
