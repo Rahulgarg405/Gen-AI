@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useRef } from "react";
 
+const threadId = Date.now().toString(36) + Math.random().toString(36);
+
 function App() {
   const [inputValue, setInputValue] = useState("");
 
@@ -52,7 +54,7 @@ function App() {
       headers: {
         "content-type": "application/json",
       },
-      body: JSON.stringify({ message: inputText }),
+      body: JSON.stringify({ threadId, message: inputText }),
     });
 
     if (!response.ok) {
