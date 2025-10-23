@@ -2,3 +2,5 @@
 /Start/.env
 /Tool-calling/node_modules
 /Tool-calling/.env
+/pdf-rag-bot/node_modules
+/pdf-rag-bot/.env
