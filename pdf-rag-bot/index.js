@@ -10,8 +10,21 @@ import { PineconeStore } from "@langchain/pinecone";
 // => load the doc
 // => convert into chunks
 
+const embeddings = new GoogleGenerativeAIEmbeddings({
+  apiKey: process.env.GEMINI_API_KEY,
+  model: "text-embedding-004",
+});
+
+const pinecone = new Pinecone();
+const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX_NAME);
+
+export const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
+  pineconeIndex,
+  maxConcurrency: 5,
+});
+
 async function indexDocument() {
-  const PDF_PATH = "./syllabus_3.pdf";
+  const PDF_PATH = "./NITS3.pdf";
   const pdfLoader = new PDFLoader(PDF_PATH);
   const rawDocs = await pdfLoader.load();
 
@@ -24,18 +37,8 @@ async function indexDocument() {
 
   //   console.log(chunkedDocs.length);
 
-  const embeddings = new GoogleGenerativeAIEmbeddings({
-    apiKey: process.env.GEMINI_API_KEY,
-    model: "text-embedding-004",
-  });
-
-  const pinecone = new Pinecone();
-  const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX_NAME);
-
-  await PineconeStore.fromDocuments(chunkedDocs, embeddings, {
-    pineconeIndex,
-    maxConcurrency: 5,
-  });
+  await vectorStore.addDocuments(chunkedDocs);
+  // await pineconeIndex.deleteAll();
 }
 
 indexDocument();
